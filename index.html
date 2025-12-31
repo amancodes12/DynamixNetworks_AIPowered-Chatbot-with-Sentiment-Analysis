@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot - Powered by Gemini Flash 2.5</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+            height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            grid-column: 1 / -1;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .logo span {
+            font-size: 0.75rem;
+            color: #888;
+            display: block;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Chat Section */
+        .chat-section {
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 14px 18px;
+            border-radius: 16px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.assistant {
+            background: rgba(255, 255, 255, 0.1);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-content {
+            line-height: 1.5;
+        }
+
+        .message-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+            font-size: 0.75rem;
+            opacity: 0.7;
+        }
+
+        .sentiment-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .sentiment-positive { background: rgba(76, 175, 80, 0.3); color: #81c784; }
+        .sentiment-negative { background: rgba(244, 67, 54, 0.3); color: #e57373; }
+        .sentiment-neutral { background: rgba(158, 158, 158, 0.3); color: #bdbdbd; }
+
+        .emotion-badge {
+            font-size: 1.1rem;
+        }
+
+        /* Chat Input */
+        .chat-input-container {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 14px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .chat-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .send-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+        }
+
+        .panel-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #888;
+        }
+
+        .panel-title i {
+            color: #667eea;
+        }
+
+        /* Stats Panel */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        /* Current Mood */
+        .mood-display {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .mood-emoji {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .mood-text {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .mood-subtext {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        /* Sentiment Distribution */
+        .sentiment-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sentiment-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sentiment-bar-label {
+            width: 70px;
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .sentiment-bar-track {
+            flex: 1;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .sentiment-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .sentiment-bar-fill.positive { background: #4CAF50; }
+        .sentiment-bar-fill.negative { background: #F44336; }
+        .sentiment-bar-fill.neutral { background: #9E9E9E; }
+
+        .sentiment-bar-value {
+            width: 30px;
+            font-size: 0.8rem;
+            text-align: right;
+        }
+
+        /* Actions Panel */
+        .actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+        }
+
+        .action-btn:hover {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+
+        .action-btn i {
+            display: block;
+            font-size: 1.2rem;
+            margin-bottom: 6px;
+            color: #667eea;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: #1a1a2e;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        .modal-body {
+            padding: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .modal-content pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        /* Loading */
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            width: fit-content;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+        }
+
+        /* Welcome Message */
+        .welcome-message {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+
+        .welcome-message i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome-message h2 {
+            color: white;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+                <div>
+                    <h1>AI Chatbot</h1>
+                    <span>Powered by Google Gemini Flash 2.5</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="resetChat()">
+                    <i class="fas fa-redo"></i> New Chat
+                </button>
+                <button class="btn btn-primary" onclick="showReport()">
+                    <i class="fas fa-chart-bar"></i> Full Report
+                </button>
+            </div>
+        </header>
+
+        <!-- Chat Section -->
+        <main class="chat-section">
+            <div class="chat-messages" id="chatMessages">
+                <div class="welcome-message">
+                    <i class="fas fa-comments"></i>
+                    <h2>Welcome to AI Chatbot!</h2>
+                    <p>I'm powered by Google Gemini Flash 2.5 and can understand your emotions.</p>
+                    <p>Start chatting to see real-time sentiment analysis!</p>
+                </div>
+            </div>
+            <div class="chat-input-container">
+                <div class="chat-input-wrapper">
+                    <input type="text" class="chat-input" id="messageInput" 
+                           placeholder="Type your message..." 
+                           onkeypress="handleKeyPress(event)">
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <!-- Current Mood Panel -->
+            <div class="panel">
+                <div class="panel-title">
+                    <i class="fas fa-face-smile"></i> Current Mood
+                </div>
+                <div class="mood-display" id="moodDisplay">
+                    <div class="mood-emoji">😐</div>
+                    <div class="mood-text">Neutral</div>
+                    <div class="mood-subtext">Start chatting to analyze mood</div>
+                </div>
+            </div>
+
+            <!-- Stats Panel -->
+            <div class="panel">
+                <div class="panel-title">
+                    <i class="fas fa-chart-simple"></i> Statistics
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalMessages">0</div>
+                        <div class="stat-label">Messages</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="avgConfidence">0%</div>
+                        <div class="stat-label">Confidence</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sentiment Distribution -->
+            <div class="panel">
+                <div class="panel-title">
+                    <i class="fas fa-pie-chart"></i> Sentiment Distribution
+                </div>
+                <div class="sentiment-bars">
+                    <div class="sentiment-bar">
+                        <span class="sentiment-bar-label">Positive</span>
+                        <div class="sentiment-bar-track">
+                            <div class="sentiment-bar-fill positive" id="positiveBar" style="width: 0%"></div>
+                        </div>
+                        <span class="sentiment-bar-value" id="positiveValue">0</span>
+                    </div>
+                    <div class="sentiment-bar">
+                        <span class="sentiment-bar-label">Neutral</span>
+                        <div class="sentiment-bar-track">
+                            <div class="sentiment-bar-fill neutral" id="neutralBar" style="width: 0%"></div>
+                        </div>
+                        <span class="sentiment-bar-value" id="neutralValue">0</span>
+                    </div>
+                    <div class="sentiment-bar">
+                        <span class="sentiment-bar-label">Negative</span>
+                        <div class="sentiment-bar-track">
+                            <div class="sentiment-bar-fill negative" id="negativeBar" style="width: 0%"></div>
+                        </div>
+                        <span class="sentiment-bar-value" id="negativeValue">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions Panel -->
+            <div class="panel">
+                <div class="panel-title">
+                    <i class="fas fa-wand-magic-sparkles"></i> AI Analytics
+                </div>
+                <div class="actions-grid">
+                    <button class="action-btn" onclick="showSummary()">
+                        <i class="fas fa-file-lines"></i>
+                        Summary
+                    </button>
+                    <button class="action-btn" onclick="showKeywords()">
+                        <i class="fas fa-key"></i>
+                        Keywords
+                    </button>
+                    <button class="action-btn" onclick="showTrends()">
+                        <i class="fas fa-chart-line"></i>
+                        Trends
+                    </button>
+                    <button class="action-btn" onclick="showGraph()">
+                        <i class="fas fa-chart-area"></i>
+                        Mood Graph
+                    </button>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Title</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-content" id="modalContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Emotion icons mapping
+        const emotionIcons = {
+            'happy': '😊',
+            'sad': '😢',
+            'angry': '😠',
+            'confused': '😕',
+            'excited': '🎉',
+            'anxious': '😰',
+            'surprised': '😮',
+            'neutral': '😐',
+            'frustrated': '😤',
+            'hopeful': '🌟'
+        };
+
+        // Track stats
+        let stats = {
+            total: 0,
+            positive: 0,
+            negative: 0,
+            neutral: 0,
+            totalConfidence: 0
+        };
+
+        // Send message
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Clear input
+            input.value = '';
+            
+            // Remove welcome message if present
+            const welcome = document.querySelector('.welcome-message');
+            if (welcome) welcome.remove();
+            
+            // Add user message
+            addMessage(message, 'user');
+            
+            // Show typing indicator
+            showTyping();
+            
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+                
+                const data = await response.json();
+                
+                // Remove typing indicator
+                hideTyping();
+                
+                if (data.error) {
+                    addMessage('Sorry, an error occurred: ' + data.error, 'assistant');
+                    return;
+                }
+                
+                // Add assistant message with sentiment
+                addMessage(data.response, 'assistant', data.sentiment, data.ui_hints);
+                
+                // Update stats
+                updateStats(data.sentiment);
+                
+                // Update mood display
+                updateMoodDisplay(data.sentiment, data.ui_hints);
+                
+            } catch (error) {
+                hideTyping();
+                addMessage('Sorry, I encountered an error. Please try again.', 'assistant');
+                console.error('Error:', error);
+            }
+        }
+
+        // Add message to chat
+        function addMessage(content, role, sentiment = null, uiHints = null) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            
+            let html = `<div class="message-content">${escapeHtml(content)}</div>`;
+            
+            if (sentiment && role === 'user') {
+                const sentimentClass = `sentiment-${sentiment.sentiment}`;
+                const emotionIcon = emotionIcons[sentiment.emotion] || '😐';
+                const confidence = Math.round(sentiment.confidence * 100);
+                
+                html += `
+                    <div class="message-meta">
+                        <span class="sentiment-badge ${sentimentClass}">
+                            ${sentiment.sentiment} (${confidence}%)
+                        </span>
+                        <span class="emotion-badge" title="${sentiment.emotion}">${emotionIcon}</span>
+                    </div>
+                `;
+            }
+            
+            messageDiv.innerHTML = html;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // Show typing indicator
+        function showTyping() {
+            const messagesDiv = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = '<span></span><span></span><span></span>';
+            messagesDiv.appendChild(typingDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            document.getElementById('sendBtn').disabled = true;
+        }
+
+        // Hide typing indicator
+        function hideTyping() {
+            const typing = document.getElementById('typingIndicator');
+            if (typing) typing.remove();
+            document.getElementById('sendBtn').disabled = false;
+        }
+
+        // Update statistics
+        function updateStats(sentiment) {
+            stats.total++;
+            stats[sentiment.sentiment]++;
+            stats.totalConfidence += sentiment.confidence;
+            
+            // Update UI
+            document.getElementById('totalMessages').textContent = stats.total;
+            document.getElementById('avgConfidence').textContent = 
+                Math.round((stats.totalConfidence / stats.total) * 100) + '%';
+            
+            // Update distribution bars
+            const total = stats.positive + stats.negative + stats.neutral;
+            if (total > 0) {
+                document.getElementById('positiveBar').style.width = (stats.positive / total * 100) + '%';
+                document.getElementById('neutralBar').style.width = (stats.neutral / total * 100) + '%';
+                document.getElementById('negativeBar').style.width = (stats.negative / total * 100) + '%';
+            }
+            
+            document.getElementById('positiveValue').textContent = stats.positive;
+            document.getElementById('neutralValue').textContent = stats.neutral;
+            document.getElementById('negativeValue').textContent = stats.negative;
+        }
+
+        // Update mood display
+        function updateMoodDisplay(sentiment, uiHints) {
+            const emotionIcon = emotionIcons[sentiment.emotion] || '😐';
+            const moodDisplay = document.getElementById('moodDisplay');
+            
+            moodDisplay.innerHTML = `
+                <div class="mood-emoji">${emotionIcon}</div>
+                <div class="mood-text">${capitalize(sentiment.emotion)}</div>
+                <div class="mood-subtext">${capitalize(sentiment.sentiment)} • ${Math.round(sentiment.confidence * 100)}% confident</div>
+            `;
+        }
+
+        // Handle Enter key
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Reset chat
+        async function resetChat() {
+            if (!confirm('Start a new conversation?')) return;
+            
+            await fetch('/reset', { method: 'POST' });
+            
+            // Reset UI
+            document.getElementById('chatMessages').innerHTML = `
+                <div class="welcome-message">
+                    <i class="fas fa-comments"></i>
+                    <h2>Welcome to AI Chatbot!</h2>
+                    <p>I'm powered by Google Gemini Flash 2.5 and can understand your emotions.</p>
+                    <p>Start chatting to see real-time sentiment analysis!</p>
+                </div>
+            `;
+            
+            // Reset stats
+            stats = { total: 0, positive: 0, negative: 0, neutral: 0, totalConfidence: 0 };
+            document.getElementById('totalMessages').textContent = '0';
+            document.getElementById('avgConfidence').textContent = '0%';
+            document.getElementById('positiveBar').style.width = '0%';
+            document.getElementById('neutralBar').style.width = '0%';
+            document.getElementById('negativeBar').style.width = '0%';
+            document.getElementById('positiveValue').textContent = '0';
+            document.getElementById('neutralValue').textContent = '0';
+            document.getElementById('negativeValue').textContent = '0';
+            
+            document.getElementById('moodDisplay').innerHTML = `
+                <div class="mood-emoji">😐</div>
+                <div class="mood-text">Neutral</div>
+                <div class="mood-subtext">Start chatting to analyze mood</div>
+            `;
+        }
+
+        // Show Summary
+        async function showSummary() {
+            showModal('AI Summary', 'Loading...');
+            const data = await fetch('/summary').then(r => r.json());
+            
+            if (data.error) {
+                showModal('Error', data.error);
+                return;
+            }
+            
+            const content = `
+                <h4>📝 Summary</h4>
+                <p>${data.summary || 'No summary available'}</p>
+                
+                <h4 style="margin-top: 16px;">🎭 Overall Tone</h4>
+                <p>${data.overall_tone || 'N/A'}</p>
+                
+                <h4 style="margin-top: 16px;">📈 Mood Journey</h4>
+                <p>${data.user_mood_journey || 'N/A'}</p>
+                
+                ${data.key_points && data.key_points.length ? `
+                    <h4 style="margin-top: 16px;">🔑 Key Points</h4>
+                    <ul>${data.key_points.map(p => `<li>${p}</li>`).join('')}</ul>
+                ` : ''}
+                
+                <h4 style="margin-top: 16px;">💡 Insights</h4>
+                <p>${data.insights || 'N/A'}</p>
+            `;
+            
+            showModal('AI Summary', content);
+        }
+
+        // Show Keywords
+        async function showKeywords() {
+            showModal('Keywords', 'Loading...');
+            const data = await fetch('/keywords').then(r => r.json());
+            
+            if (data.error) {
+                showModal('Error', data.error);
+                return;
+            }
+            
+            const content = `
+                ${data.keywords && data.keywords.length ? `
+                    <h4>🔑 Keywords</h4>
+                    <p>${data.keywords.join(', ')}</p>
+                ` : ''}
+                
+                ${data.themes && data.themes.length ? `
+                    <h4 style="margin-top: 16px;">📚 Themes</h4>
+                    <p>${data.themes.join(', ')}</p>
+                ` : ''}
+                
+                ${data.topics_of_interest && data.topics_of_interest.length ? `
+                    <h4 style="margin-top: 16px;">💡 Topics of Interest</h4>
+                    <p>${data.topics_of_interest.join(', ')}</p>
+                ` : ''}
+                
+                <h4 style="margin-top: 16px;">📊 Analysis</h4>
+                <p>${data.frequency_analysis || 'N/A'}</p>
+            `;
+            
+            showModal('AI Keywords & Themes', content);
+        }
+
+        // Show Trends
+        async function showTrends() {
+            showModal('Trends', 'Loading...');
+            const data = await fetch('/trends').then(r => r.json());
+            
+            if (data.error) {
+                showModal('Error', data.error);
+                return;
+            }
+            
+            const content = `
+                <h4>📈 Trend: ${capitalize(data.trend || 'N/A')}</h4>
+                <h4 style="margin-top: 8px;">➡️ Direction: ${capitalize(data.direction || 'N/A')}</h4>
+                
+                <h4 style="margin-top: 16px;">📊 Analysis</h4>
+                <p>${data.analysis || 'N/A'}</p>
+                
+                ${data.mood_shifts && data.mood_shifts.length ? `
+                    <h4 style="margin-top: 16px;">↔️ Mood Shifts</h4>
+                    <ul>${data.mood_shifts.map(s => `<li>${s}</li>`).join('')}</ul>
+                ` : ''}
+                
+                <h4 style="margin-top: 16px;">🔮 Prediction</h4>
+                <p>${data.prediction || 'N/A'}</p>
+            `;
+            
+            showModal('AI Trend Analysis', content);
+        }
+
+        // Show Graph
+        async function showGraph() {
+            showModal('Mood Graph', 'Loading...');
+            const data = await fetch('/graph').then(r => r.json());
+            
+            if (data.error) {
+                showModal('Error', data.error);
+                return;
+            }
+            
+            const content = `<pre>${escapeHtml(data.graph)}</pre>`;
+            showModal('AI Mood Graph', content);
+        }
+
+        // Show Report
+        async function showReport() {
+            showModal('Full Report', 'Loading...');
+            const data = await fetch('/report').then(r => r.json());
+            
+            if (data.error) {
+                showModal('Error', data.error);
+                return;
+            }
+            
+            const content = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            showModal('Full Analytics Report', content);
+        }
+
+        // Modal functions
+        function showModal(title, content) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalContent').innerHTML = content;
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function closeModal(event) {
+            if (!event || event.target.id === 'modalOverlay') {
+                document.getElementById('modalOverlay').classList.remove('active');
+            }
+        }
+
+        // Helper functions
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function capitalize(str) {
+            return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
+        }
+
+        // Focus input on load
+        window.onload = () => {
+            document.getElementById('messageInput').focus();
+        };
+    </script>
+</body>
+</html>
