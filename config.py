@@ -6,7 +6,7 @@ import os
 
 # Google Gemini API Configuration
 # Set your API key as an environment variable or replace the placeholder below
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "AIzaSyAvvb-7rrxDmyPystaOkZ0UGB-HYilNvMc")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "api key here")
 MODEL_NAME = "gemini-2.5-flash"
 
 # Application Settings
