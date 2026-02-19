@@ -474,7 +474,7 @@ MIT License - Feel free to use, modify, and distribute.
 
 ## 👤 Author
 
-**Gourvi Chawla**
+**Aman Yadav**
 
 ---
 
